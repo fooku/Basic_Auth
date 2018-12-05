@@ -21,7 +21,7 @@ type User struct {
 	Timestamp time.Time
 }
 
-// AddUser > register
+// AddUser > insert data to mongoDB
 func AddUser(user User, u string, e string, p string) error {
 	s := mongoSession.Copy()
 	defer s.Close()
@@ -50,6 +50,7 @@ func AddUser(user User, u string, e string, p string) error {
 	return nil
 }
 
+// FindUser > ค้นหาUser จาก User ID
 func FindUser(username string) (error, User) {
 	s := mongoSession.Copy()
 	defer s.Close()
