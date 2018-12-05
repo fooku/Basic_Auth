@@ -11,30 +11,23 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-type Ur struct {
-	Name  string `json:"name" xml:"name"`
-	Email string `json:"email" xml:"email"`
+// Accessible > หน้าแรก
+func Accessible(c echo.Context) error {
+	return c.String(http.StatusOK, "Accessible")
 }
 
-func Test(c echo.Context) error {
-	u := &Ur{
-		Name:  "Jon",
-		Email: "jon@labstack.com",
-	}
-	return c.JSON(http.StatusOK, u)
-}
-
+// Login > ยืนยันตัวต้นจาก HasPassword และ เจน jwt key
 func Login(c echo.Context) error {
-	username := c.FormValue("username")
-	password := c.FormValue("password")
+	u := new(models.LoginRequest)
+	err := c.Bind(u)
 
-	err, user := models.FindUser(username)
+	err, user := models.FindUser(u.Username)
 
 	if err == mgo.ErrNotFound {
 		return &echo.HTTPError{Code: http.StatusUnauthorized, Message: "invalid email"}
 	}
 
-	if user.ComparePassword(password) {
+	if user.ComparePassword(u.Password) {
 		// Create token
 		token := jwt.New(jwt.SigningMethodHS256)
 
@@ -57,20 +50,27 @@ func Login(c echo.Context) error {
 	return &echo.HTTPError{Code: http.StatusUnauthorized, Message: "invalid password"}
 }
 
-type UserRequest struct {
-	Username string `json:"username" form:"username" query:"username"`
-	Email    string `json:"email" form:"email" query:"email"`
-	Password string `json:"password" form:"password" query:"password"`
-}
-
+// Register > เพิ่มผู้ใช้ลง mongoDB
 func Register(c echo.Context) error {
 	var user models.User
 
-	u := new(UserRequest)
+	u := new(models.RegisterRequest)
 	err := c.Bind(u)
 
 	fmt.Println(u)
 	err = models.AddUser(user, u.Username, u.Email, u.Password)
 
 	return err
+}
+
+// Restricted > jwt
+func Restricted(c echo.Context) error {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	name := claims["name"].(string)
+
+	// เพิ่มคำร้อง
+
+	fmt.Println(name, claims["admin"])
+	return c.JSON(http.StatusOK, claims)
 }

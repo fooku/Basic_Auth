@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -43,21 +42,12 @@ func AddUser(user User, u string, e string, p string) error {
 	user.Username = u
 	user.Email = e
 	user.Timestamp = time.Now()
-	defer timer()()
 	err = c.Insert(&user)
 	// err := s.DB(database).C("users").Update("Username", &user)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusUnauthorized, Message: err}
 	}
 	return nil
-}
-
-func timer() func() {
-	t := time.Now()
-	return func() {
-		diff := time.Now().Sub(t)
-		log.Println(diff)
-	}
 }
 
 func FindUser(username string) (error, User) {
