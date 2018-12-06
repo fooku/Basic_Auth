@@ -51,7 +51,7 @@ func AddUser(user User, u string, e string, p string) error {
 }
 
 // FindUser > ค้นหาUser จาก User ID
-func FindUser(username string) (error, User) {
+func FindUser(username string) (User, error) {
 	s := mongoSession.Copy()
 	defer s.Close()
 
@@ -60,10 +60,10 @@ func FindUser(username string) (error, User) {
 	// Find(bson.M{"username": "sdfasdfasdf"}).Sort("-timestamp").All(&results)
 
 	if err != nil {
-		return err, result
+		return result, err
 	}
 
 	fmt.Println("Results All: ", result.HasPassword)
 
-	return nil, result
+	return result, nil
 }

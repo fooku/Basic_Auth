@@ -20,9 +20,13 @@ func Accessible(c echo.Context) error {
 func Login(c echo.Context) error {
 	u := new(models.LoginRequest)
 	err := c.Bind(u)
-
-	err, user := models.FindUser(u.Username)
-
+	if err != nil {
+		return err
+	}
+	user, err := models.FindUser(u.Username)
+	if err != nil {
+		return err
+	}
 	if err == mgo.ErrNotFound {
 		return &echo.HTTPError{Code: http.StatusUnauthorized, Message: "invalid email"}
 	}
@@ -56,6 +60,9 @@ func Register(c echo.Context) error {
 
 	u := new(models.RegisterRequest)
 	err := c.Bind(u)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println(u)
 	err = models.AddUser(user, u.Username, u.Email, u.Password)

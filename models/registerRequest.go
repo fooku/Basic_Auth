@@ -1,5 +1,6 @@
 package models
 
+// RegisterRequest > รับคำร้องสมัครสมาชิก
 type RegisterRequest struct {
 	Username string `json:"username" form:"username" query:"username"`
 	Email    string `json:"email" form:"email" query:"email"`
